@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="Numera — a wordless math RPG. Walk Seed Grove, duel with number tiles, unlock op-pets." />
+  <meta name="theme-color" content="#1e3a2f" />
+  <title>Numera</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231e3a2f'/%3E%3Ccircle cx='32' cy='28' r='14' fill='%2378c090'/%3E%3Ctext x='32' y='34' text-anchor='middle' font-size='16' fill='%231e3a2f' font-family='system-ui' font-weight='700'%3EN%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- TITLE -->
+  <div id="screen-title" class="screen active">
+    <div class="title-card">
+      <div class="title-crest" aria-hidden="true">
+        <span class="crest-orb"></span>
+        <span class="crest-leaf"></span>
+      </div>
+      <h1 class="title-word">Numera</h1>
+      <p class="title-sub">Seed Grove · v0.1</p>
+      <button type="button" class="big-btn" id="btn-start" aria-label="Begin">▶</button>
+      <p class="title-hint">← → ↑ ↓ · click · WASD</p>
+    </div>
+  </div>
+
+  <!-- OVERWORLD -->
+  <div id="screen-map" class="screen">
+    <header class="map-hud">
+      <div class="region-pill" title="Current region">
+        <span class="region-icon" aria-hidden="true">🌱</span>
+        <span id="region-name">Seed Grove</span>
+      </div>
+      <div class="pet-tray" id="pet-tray" aria-label="Unlocked ops"></div>
+      <div class="focus-mini" title="Focus">
+        <div class="focus-mini-fill" id="map-focus-fill"></div>
+      </div>
+    </header>
+
+    <div class="map-wrap">
+      <canvas id="world" width="640" height="400" aria-label="Overworld map" tabindex="0"></canvas>
+      <div class="map-legend" aria-hidden="true">
+        <span class="leg-node">◆</span> node
+        <span class="leg-boss">★</span> boss
+        <span class="leg-you">●</span> you
+      </div>
+    </div>
+
+    <p class="toast" id="map-toast" role="status" aria-live="polite"></p>
+  </div>
+
+  <!-- DUEL -->
+  <div id="screen-duel" class="screen">
+    <header class="duel-hud">
+      <button type="button" class="icon-btn" id="btn-flee" title="Return to map" aria-label="Return to map">🗺</button>
+      <div class="guardian-block">
+        <div class="guardian-face" id="guardian-face" aria-hidden="true">🌿</div>
+        <div class="hp-track"><div class="hp-fill" id="guardian-hp"></div></div>
+        <span class="guardian-label" id="guardian-name">Seedling</span>
+      </div>
+      <div class="focus-block-duel">
+        <span class="focus-label">Focus</span>
+        <div class="focus-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="duel-focus-meter">
+          <div class="focus-fill" id="duel-focus-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="duel-stage">
+      <div class="target-card">
+        <span class="target-glyph" aria-hidden="true">◎</span>
+        <span class="target-value" id="target-value">12</span>
+      </div>
+
+      <div class="tiles" id="tile-board" role="list" aria-label="Number tiles"></div>
+
+      <div class="ops" id="op-bar" role="group" aria-label="Pets / operations"></div>
+
+      <div class="duel-tools">
+        <button type="button" class="tool-btn" id="undo-btn" title="Undo">↶</button>
+        <button type="button" class="tool-btn" id="reset-btn" title="Reset">↺</button>
+      </div>
+
+      <p class="toast" id="duel-toast" role="status" aria-live="polite"></p>
+    </main>
+
+    <aside class="win-panel" id="win-panel" hidden>
+      <div class="win-burst" aria-hidden="true">✦</div>
+      <p class="win-msg" id="win-msg">Clear!</p>
+      <p class="win-unlock" id="win-unlock" hidden></p>
+      <button type="button" class="big-btn" id="btn-return" aria-label="Return to map">🗺</button>
+    </aside>
+  </div>
+
+  <!-- CLEAR / CREDITS stub -->
+  <div id="screen-clear" class="screen">
+    <div class="title-card">
+      <div class="title-crest clear-crest" aria-hidden="true"><span class="crest-orb"></span></div>
+      <h1 class="title-word">Grove Clear</h1>
+      <p class="title-sub">Seed Grove · boss defeated</p>
+      <p class="clear-note">Workshop Isles · comics · Quotia — stubs for later</p>
+      <button type="button" class="big-btn" id="btn-again" aria-label="Back to map">🗺</button>
+    </div>
+  </div>
+
+  <script src="js/puzzles.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/pets.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/duel.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
