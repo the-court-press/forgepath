@@ -1,4 +1,4 @@
-/* Forgepath — hearts + FOCUS beads + pet tray (mock-aligned HUD) */
+/* ForgePath Prequel — hearts + FOCUS beads + pet tray (mock-aligned HUD) */
 (function (global) {
   'use strict';
 

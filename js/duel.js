@@ -1,4 +1,4 @@
-/* Forgepath — OPERATE!-style tile duel
+/* ForgePath Prequel — OPERATE!-style tile duel
    Player HP + Focus (hearts / beads); pets unlock ops only. */
 (function (global) {
   'use strict';

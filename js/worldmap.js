@@ -1,4 +1,4 @@
-/* Forgepath — Workshop Isles world map */
+/* ForgePath Prequel — Workshop Isles world map */
 (function (global) {
   'use strict';
 

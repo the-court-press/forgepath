@@ -1,8 +1,8 @@
 # Concept targets (north-star mocks)
 
-These PNGs are **concept / art-direction targets** for Forgepath — not final shipped sprites drawn for production.
+These PNGs are **concept / art-direction targets** for ForgePath Prequel — not final shipped sprites drawn for production.
 
-They were provided as visual bible references (AI-generated or concept art). Do **not** credit them as original hand-drawn Forgepath production art.
+They were provided as visual bible references (AI-generated or concept art). Do **not** credit them as original hand-drawn ForgePath Prequel production art.
 
 | File | Scene |
 |------|-------|

@@ -1,4 +1,4 @@
-/* Forgepath — Seed Grove overworld (richer canvas + concept BG) */
+/* ForgePath Prequel — Seed Grove overworld (richer canvas + concept BG) */
 (function (global) {
   'use strict';
 

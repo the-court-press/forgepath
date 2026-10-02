@@ -1,4 +1,4 @@
-/* Forgepath — Web Audio beeps (from operate) */
+/* ForgePath Prequel — Web Audio beeps (from operate) */
 (function (global) {
   'use strict';
 

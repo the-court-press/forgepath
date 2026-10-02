@@ -1,4 +1,4 @@
-/* Forgepath v0.1 — original CSS art, no franchise IP */
+/* ForgePath Prequel v0.1 — original CSS art, no franchise IP */
 :root {
   --soil: #1e3a2f;
   --moss: #2d5a45;
@@ -420,7 +420,7 @@ html, body {
   .title-word { font-size: 2rem; }
 }
 
-/* —— Forgepath pad (classic handheld homage; original branding) —— */
+/* —— ForgePath Prequel pad (classic handheld homage; original branding) —— */
 .game-pad {
   position: fixed;
   left: 0; right: 0; bottom: 0;

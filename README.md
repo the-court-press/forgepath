@@ -1,4 +1,4 @@
-# Forgepath
+# ForgePath Prequel
 
 A wordless, map-first **math RPG**: walk a tiny overworld, touch an encounter node, and settle it in an **OPERATE!**-style tactile tile duel (four numbers, merge with **+ − × ÷** toward a target). Soft mythic + nature tone — cute grove spirits early; mythical animals later. Math brain = the magic.
 
@@ -7,16 +7,16 @@ A wordless, map-first **math RPG**: walk a tiny overworld, touch an encounter no
 Playable demo (GitHub Pages):  
 **https://julianlee314-hue.github.io/forgepath/**
 
-## Forgepath vs `operate`
+## ForgePath Prequel vs `operate`
 
-| | **operate** | **Forgepath** |
+| | **operate** | **ForgePath Prequel** |
 |---|-------------|---------------|
 | Role | Arithmetic tile **lab / research box** | Ambitious **math RPG** product |
 | Loop | Deal → solve → next puzzle | Overworld → encounter → duel → map |
 | Framing | Solo practice table | Seed Grove / Workshop Isles, pets, boss |
 | Repo | [`operate`](https://github.com/julianlee314-hue/operate) | [`forgepath`](https://github.com/julianlee314-hue/forgepath) |
 
-Puzzle **bank + merge engine** ideas are reused from `operate` (copied, not linked). Changing Forgepath will not break the operate repo.
+Puzzle **bank + merge engine** ideas are reused from `operate` (copied, not linked). Changing ForgePath Prequel will not break the operate repo.
 
 ## How to play (words-light)
 
@@ -28,9 +28,9 @@ Puzzle **bank + merge engine** ideas are reused from `operate` (copied, not link
 6. Clear the mid-path node → unlock **Producto (×)**. Clear the Grove Warden → unlock **Quotia (÷)**.
 7. **Select** → **My Familiars**. **Start** / 🗺 → **Workshop Isles** world map.
 
-### On-screen pad (Forgepath labeling)
+### On-screen pad (ForgePath Prequel labeling)
 
-Classic handheld *homage* layout — gray plastic chrome, chunky pixels. **Original** Forgepath branding only (no franchise logos, names, or marks).
+Classic handheld *homage* layout — gray plastic chrome, chunky pixels. **Original** ForgePath Prequel branding only (no franchise logos, names, or marks).
 
 | Control | Action |
 |---------|--------|
@@ -87,7 +87,7 @@ python3 -m http.server 8080
 
 ## IP note
 
-Forgepath is an **original** product. Early-Zelda *feel* (wordless, map-first), classroom “make the target” number play, and classic handheld control *layout* inspire the design — not affiliated with Nintendo, Pokémon, Capcom, or any other franchise. No official logos, marks, or character assets.
+ForgePath Prequel is an **original** product. Early-Zelda *feel* (wordless, map-first), classroom “make the target” number play, and classic handheld control *layout* inspire the design — not affiliated with Nintendo, Pokémon, Capcom, or any other franchise. No official logos, marks, or character assets.
 
 Concept PNGs in `art/reference/` are **visual targets** (concept / AI-assisted), not final production drawings.
 

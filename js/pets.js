@@ -1,4 +1,4 @@
-/* Forgepath — op-pets / familiars */
+/* ForgePath Prequel — op-pets / familiars */
 (function (global) {
   'use strict';
 

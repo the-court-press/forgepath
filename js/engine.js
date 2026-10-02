@@ -1,4 +1,4 @@
-/* Forgepath — merge engine (adapted from operate) */
+/* ForgePath Prequel — merge engine (adapted from operate) */
 (function (global) {
   'use strict';
 

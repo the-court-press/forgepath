@@ -1,4 +1,4 @@
-/* Forgepath — screen flow + pad + familiars + world map */
+/* ForgePath Prequel — screen flow + pad + familiars + world map */
 (function () {
   'use strict';
 
