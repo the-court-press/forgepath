@@ -1,79 +1,125 @@
-/* Forgepath — screen flow + boot + on-screen pad */
+/* Forgepath — screen flow + pad + familiars + world map */
 (function () {
   'use strict';
 
   const screens = {
     title: document.getElementById('screen-title'),
     map: document.getElementById('screen-map'),
+    world: document.getElementById('screen-world'),
     duel: document.getElementById('screen-duel'),
+    familiars: document.getElementById('screen-familiars'),
     clear: document.getElementById('screen-clear'),
   };
 
   const gamePad = document.getElementById('game-pad');
   let currentScreen = 'title';
+  let returnScreen = 'map';
 
   function show(name) {
     currentScreen = name;
     Object.keys(screens).forEach((k) => {
       screens[k].classList.toggle('active', k === name);
     });
-    // Pad on map + duel; hide on title/clear
-    if (gamePad) gamePad.hidden = !(name === 'map' || name === 'duel');
+    if (gamePad) {
+      gamePad.hidden = !(name === 'map' || name === 'duel' || name === 'world' || name === 'familiars');
+    }
   }
 
   const pets = ForgepathPets.createPetState();
-  const petTray = document.getElementById('pet-tray');
-  const mapFocusFill = document.getElementById('map-focus-fill');
-  const mapHpFill = document.getElementById('map-hp-fill');
   const mapToast = document.getElementById('map-toast');
 
   let map = null;
   let duel = null;
+  let worldMap = null;
   let inEncounter = false;
   let focus = 0;
   let playerHp = 100;
-  let petsHighlight = false;
+  let famSelected = 'summo';
+
+  function hudRoots() {
+    return [
+      document.getElementById('map-hud'),
+      document.getElementById('world-hud'),
+      document.getElementById('fam-hud'),
+      document.getElementById('duel-hud'),
+    ];
+  }
+
+  function syncHud() {
+    ForgepathHud.syncAll(hudRoots(), playerHp, focus, pets);
+  }
 
   function syncFocus(v) {
     focus = v;
-    mapFocusFill.style.width = focus + '%';
+    syncHud();
   }
 
   function syncHp(v) {
     playerHp = v;
-    if (mapHpFill) mapHpFill.style.width = playerHp + '%';
+    syncHud();
   }
 
-  function refreshPets() {
-    ForgepathPets.renderPetTray(petTray, pets);
+  function partyPetIds() {
+    return pets.combatPets().filter((p) => pets.isUnlocked(p.id)).map((p) => p.id).slice(0, 3);
   }
 
-  function flashPets() {
-    // Select: focus support pets tray
-    petsHighlight = true;
-    if (petTray) {
-      petTray.classList.add('pets-flash');
-      setTimeout(() => petTray.classList.remove('pets-flash'), 900);
+  function openFamiliars() {
+    returnScreen = currentScreen === 'familiars' ? returnScreen : currentScreen;
+    if (returnScreen === 'duel') returnScreen = 'map';
+    show('familiars');
+    const mount = document.getElementById('familiars-mount');
+    ForgepathPets.renderFamiliarsMenu(mount, pets, famSelected);
+    syncHud();
+    mount.querySelectorAll('.fam-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        famSelected = card.dataset.pet;
+        openFamiliars();
+      });
+    });
+    const mapTab = mount.querySelector('#fam-tab-map');
+    if (mapTab) {
+      mapTab.disabled = false;
+      mapTab.addEventListener('click', () => openWorldMap());
     }
-    const unlocked = pets.list.filter((p) => pets.isUnlocked(p.id)).map((p) => p.name);
-    if (mapToast && currentScreen === 'map') {
-      mapToast.textContent = unlocked.length ? unlocked.join(' · ') : '…';
-      setTimeout(() => { if (mapToast.textContent === unlocked.join(' · ')) mapToast.textContent = ''; }, 1600);
+  }
+
+  function closeFamiliars() {
+    if (returnScreen === 'world') openWorldMap();
+    else startMap();
+  }
+
+  function openWorldMap() {
+    returnScreen = 'map';
+    show('world');
+    const mount = document.getElementById('worldmap-mount');
+    if (!worldMap) {
+      worldMap = ForgepathWorldMap.createWorldMap(mount, {
+        onBack() { startMap(); },
+        onSelect(r) {
+          if (r.id === 'seed-grove') startMap();
+          else if (mapToast) {
+            /* soft toast via region pill */
+          }
+        },
+        onEnter(r) {
+          if (r.id === 'seed-grove') startMap();
+        },
+      });
+    } else {
+      worldMap.render();
     }
-    const duelToast = document.getElementById('duel-toast');
-    if (duelToast && currentScreen === 'duel') {
-      duelToast.textContent = unlocked.length ? unlocked.join(' · ') : '…';
-      setTimeout(() => { if (duelToast.textContent === unlocked.join(' · ')) duelToast.textContent = ''; }, 1600);
-    }
+    const n = map ? map.clearedCount() : 0;
+    worldMap.setProgress(n);
+    syncHud();
   }
 
   function startMap() {
     show('map');
-    refreshPets();
-    syncHp(playerHp);
+    syncHud();
     const canvas = document.getElementById('world');
     if (map) map.stop();
     map = ForgepathMap.createMap(canvas, {
+      getPets: partyPetIds,
       onEncounter(enc) {
         if (inEncounter) return;
         inEncounter = true;
@@ -83,7 +129,7 @@
     });
     map.start();
     canvas.focus();
-    mapToast.textContent = '';
+    if (mapToast) mapToast.textContent = '';
   }
 
   function enterDuel(enc) {
@@ -97,7 +143,7 @@
         onWin(encounter) {
           if (map && encounter) map.markCleared(encounter.id);
           syncHp(Math.min(100, playerHp + 15));
-          refreshPets();
+          syncHud();
         },
         onFlee() {
           leaveDuel(false);
@@ -110,6 +156,7 @@
     }
     duel.setFocus(focus);
     duel.begin(enc);
+    syncHud();
   }
 
   function leaveDuel(showClear) {
@@ -123,7 +170,6 @@
     startMap();
   }
 
-  /* —— Pad wiring —— */
   function bindPadHold(el, onDown, onUp) {
     if (!el) return;
     const down = (e) => {
@@ -159,15 +205,12 @@
     padA.addEventListener('click', (e) => {
       e.preventDefault();
       OperateAudio.unlock();
-      if (currentScreen === 'map' && map) {
-        map.interactNearest();
-      } else if (currentScreen === 'duel' && duel) {
-        duel.pressA();
-      } else if (currentScreen === 'title') {
-        document.getElementById('btn-start').click();
-      } else if (currentScreen === 'clear') {
-        document.getElementById('btn-again').click();
-      }
+      if (currentScreen === 'map' && map) map.interactNearest();
+      else if (currentScreen === 'duel' && duel) duel.pressA();
+      else if (currentScreen === 'world' && worldMap) worldMap.enterSelected();
+      else if (currentScreen === 'familiars') { /* view already selected */ }
+      else if (currentScreen === 'title') document.getElementById('btn-start').click();
+      else if (currentScreen === 'clear') document.getElementById('btn-again').click();
     });
   }
 
@@ -175,39 +218,45 @@
     padB.addEventListener('click', (e) => {
       e.preventDefault();
       OperateAudio.unlock();
-      if (currentScreen === 'duel' && duel) {
-        if (!duel.pressB()) {
-          // already undid or inactive — flee
-          document.getElementById('btn-flee').click();
-        }
+      if (currentScreen === 'familiars') closeFamiliars();
+      else if (currentScreen === 'world') startMap();
+      else if (currentScreen === 'duel' && duel) {
+        if (!duel.pressB()) document.getElementById('btn-flee').click();
       } else if (currentScreen === 'map' && map) {
         map.cancelMove();
       }
     });
   }
 
-  // Start = pause / return to map (from duel) or soft pause toast on map
+  // Start → Workshop Isles world map (from grove) / flee duel
   if (padStart) {
     padStart.addEventListener('click', (e) => {
       e.preventDefault();
       OperateAudio.unlock();
-      if (currentScreen === 'duel') {
-        document.getElementById('btn-flee').click();
-      } else if (currentScreen === 'map') {
-        mapToast.textContent = '…';
-        setTimeout(() => { if (mapToast.textContent === '…') mapToast.textContent = ''; }, 800);
-      } else if (currentScreen === 'title') {
-        document.getElementById('btn-start').click();
-      }
+      if (currentScreen === 'duel') document.getElementById('btn-flee').click();
+      else if (currentScreen === 'map' || currentScreen === 'familiars') openWorldMap();
+      else if (currentScreen === 'world') startMap();
+      else if (currentScreen === 'title') document.getElementById('btn-start').click();
     });
   }
 
-  // Select = pets (show / flash support tray)
+  // Select → My Familiars
   if (padSelect) {
     padSelect.addEventListener('click', (e) => {
       e.preventDefault();
       OperateAudio.unlock();
-      flashPets();
+      if (currentScreen === 'familiars') closeFamiliars();
+      else if (currentScreen === 'duel') {
+        // flash tray only in duel (don't leave fight mid-puzzle)
+        if (duel) duel.syncHud();
+        const tray = document.getElementById('duel-pet-tray');
+        if (tray) {
+          tray.classList.add('pets-flash');
+          setTimeout(() => tray.classList.remove('pets-flash'), 900);
+        }
+      } else {
+        openFamiliars();
+      }
     });
   }
 
@@ -223,8 +272,9 @@
     startMap();
   });
 
-  // Boot
-  refreshPets();
-  syncHp(100);
+  const btnWorld = document.getElementById('btn-world-map');
+  if (btnWorld) btnWorld.addEventListener('click', () => openWorldMap());
+
+  syncHud();
   show('title');
 })();

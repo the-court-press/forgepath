@@ -18,83 +18,100 @@
         <span class="crest-leaf"></span>
       </div>
       <h1 class="title-word">Forgepath</h1>
-      <p class="title-sub">Seed Grove · v0.1</p>
+      <p class="title-sub">Workshop Isles · Seed Grove</p>
       <button type="button" class="big-btn" id="btn-start" aria-label="Begin">▶</button>
-      <p class="title-hint">← → ↑ ↓ · click · WASD · pad</p>
+      <p class="title-hint">← → ↑ ↓ · A/B · Start/Select</p>
     </div>
   </div>
 
-  <!-- OVERWORLD -->
+  <!-- OVERWORLD (Seed Grove) -->
   <div id="screen-map" class="screen">
-    <header class="map-hud">
+    <header class="pixel-hud" id="map-hud">
+      <div class="hud-vitals">
+        <div class="hearts" aria-label="Hearts"></div>
+        <div class="focus-row">
+          <span class="focus-label-px">FOCUS</span>
+          <div class="focus-beads" aria-label="Focus"></div>
+        </div>
+      </div>
       <div class="region-pill" title="Current region">
         <span class="region-icon" aria-hidden="true">🌱</span>
         <span id="region-name">Seed Grove</span>
+        <button type="button" class="map-open-btn" id="btn-world-map" title="Workshop Isles">🗺</button>
       </div>
-      <div class="pet-tray" id="pet-tray" aria-label="Support pets / unlocked ops"></div>
-      <div class="you-mini" title="You">
-        <span class="you-mini-label">YOU</span>
-        <div class="hp-mini"><div class="hp-mini-fill" id="map-hp-fill"></div></div>
-      </div>
-      <div class="focus-mini" title="Focus / MP">
-        <div class="focus-mini-fill" id="map-focus-fill"></div>
-      </div>
+      <div class="pet-tray" id="pet-tray" aria-label="Support pets"></div>
     </header>
 
-    <div class="map-wrap">
-      <canvas id="world" width="640" height="400" aria-label="Overworld map" tabindex="0"></canvas>
-      <div class="map-legend" aria-hidden="true">
-        <span class="leg-node">◆</span> node
-        <span class="leg-boss">★</span> boss
-        <span class="leg-you">●</span> you
-      </div>
+    <div class="map-wrap grove-frame">
+      <canvas id="world" width="640" height="384" aria-label="Seed Grove overworld" tabindex="0"></canvas>
     </div>
 
     <p class="toast" id="map-toast" role="status" aria-live="polite"></p>
   </div>
 
+  <!-- WORLD MAP (Workshop Isles) -->
+  <div id="screen-world" class="screen">
+    <header class="pixel-hud" id="world-hud">
+      <div class="hud-vitals">
+        <div class="hearts" aria-label="Hearts"></div>
+        <div class="focus-row">
+          <span class="focus-label-px">FOCUS</span>
+          <div class="focus-beads" aria-label="Focus"></div>
+        </div>
+      </div>
+      <div class="pet-tray" id="world-pet-tray" aria-label="Support pets"></div>
+    </header>
+    <div id="worldmap-mount" class="worldmap-mount"></div>
+  </div>
+
   <!-- DUEL -->
   <div id="screen-duel" class="screen">
-    <header class="duel-hud">
+    <header class="pixel-hud duel-top" id="duel-hud">
       <button type="button" class="icon-btn" id="btn-flee" title="Return to map" aria-label="Return to map">🗺</button>
-
-      <div class="player-block" title="You — the fighter">
-        <div class="player-face" aria-hidden="true">●</div>
-        <span class="player-label">YOU</span>
-        <div class="hp-track player-hp" role="meter" aria-label="Your HP" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" id="player-hp-meter">
-          <div class="hp-fill" id="player-hp"></div>
+      <div class="hud-vitals">
+        <div class="hearts" id="duel-hearts" aria-label="Hearts"></div>
+        <div class="focus-row">
+          <span class="focus-label-px">FOCUS</span>
+          <div class="focus-beads" id="duel-focus-beads" aria-label="Focus"></div>
         </div>
       </div>
+      <div class="pet-tray" id="duel-pet-tray" aria-label="Support pets"></div>
+    </header>
 
-      <div class="focus-block-duel">
-        <span class="focus-label">Focus</span>
-        <div class="focus-track" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="duel-focus-meter">
-          <div class="focus-fill" id="duel-focus-fill"></div>
-        </div>
+    <main class="duel-stage boss-arena" id="duel-stage">
+      <div class="golem-art" id="guardian-face" aria-hidden="true">
+        <div class="golem-body"></div>
+        <div class="golem-eye"></div>
       </div>
-
-      <div class="guardian-block" title="Guardian pressure (cosmetic)">
-        <div class="guardian-face" id="guardian-face" aria-hidden="true">🌿</div>
+      <div class="guardian-pressure-wrap" title="Guardian pressure">
         <div class="pressure-track" role="meter" aria-label="Guardian pressure" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="guardian-pressure-meter">
           <div class="pressure-fill" id="guardian-pressure"></div>
         </div>
         <span class="guardian-label" id="guardian-name">Seedling</span>
       </div>
-    </header>
 
-    <main class="duel-stage">
-      <div class="target-card">
+      <div class="target-sign">
         <span class="target-glyph" aria-hidden="true">◎</span>
         <span class="target-value" id="target-value">12</span>
       </div>
 
-      <div class="tiles" id="tile-board" role="list" aria-label="Number tiles"></div>
+      <div class="stone-frame">
+        <div class="tiles" id="tile-board" role="list" aria-label="Number tiles"></div>
+      </div>
 
       <div class="ops" id="op-bar" role="group" aria-label="Support pets / operations"></div>
 
       <div class="duel-tools">
         <button type="button" class="tool-btn" id="undo-btn" title="Undo">↶</button>
         <button type="button" class="tool-btn" id="reset-btn" title="Reset">↺</button>
+      </div>
+
+      <!-- hidden meters kept for duel.js compatibility -->
+      <div class="sr-only" hidden>
+        <div id="player-hp"></div>
+        <div id="player-hp-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"></div>
+        <div id="duel-focus-fill"></div>
+        <div id="duel-focus-meter" role="meter" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
       </div>
 
       <p class="toast" id="duel-toast" role="status" aria-live="polite"></p>
@@ -108,19 +125,33 @@
     </aside>
   </div>
 
-  <!-- CLEAR / CREDITS stub -->
+  <!-- FAMILIARS (Select) -->
+  <div id="screen-familiars" class="screen">
+    <header class="pixel-hud" id="fam-hud">
+      <div class="hud-vitals">
+        <div class="hearts" aria-label="Hearts"></div>
+        <div class="focus-row">
+          <span class="focus-label-px">FOCUS</span>
+          <div class="focus-beads" aria-label="Focus"></div>
+        </div>
+      </div>
+      <div class="pet-tray" id="fam-pet-tray" aria-label="Support pets"></div>
+    </header>
+    <div id="familiars-mount" class="familiars-mount"></div>
+  </div>
+
+  <!-- CLEAR -->
   <div id="screen-clear" class="screen">
     <div class="title-card">
       <div class="title-crest clear-crest" aria-hidden="true"><span class="crest-orb"></span></div>
       <h1 class="title-word">Grove Clear</h1>
       <p class="title-sub">Seed Grove · boss defeated</p>
-      <p class="clear-note">Workshop Isles · comics · Quotia — stubs for later</p>
+      <p class="clear-note">Workshop Isles map · Quotia unlocked · more isles stubbed</p>
       <button type="button" class="big-btn" id="btn-again" aria-label="Back to map">🗺</button>
     </div>
   </div>
 
-
-  <!-- Forgepath pad — classic handheld homage (original labeling; no franchise marks) -->
+  <!-- Forgepath pad -->
   <div id="game-pad" class="game-pad" hidden aria-label="Forgepath controls">
     <div class="pad-shell">
       <div class="pad-brand" aria-hidden="true">FORGEPATH</div>
@@ -133,8 +164,8 @@
           <button type="button" class="dpad-btn dpad-down" data-dir="down" aria-label="Down"></button>
         </div>
         <div class="mid-cluster" role="group" aria-label="Start Select">
-          <button type="button" class="pad-pill" id="pad-select" aria-label="Select pets">SELECT</button>
-          <button type="button" class="pad-pill" id="pad-start" aria-label="Start pause map">START</button>
+          <button type="button" class="pad-pill" id="pad-select" aria-label="Select familiars">SELECT</button>
+          <button type="button" class="pad-pill" id="pad-start" aria-label="Start world map">START</button>
         </div>
         <div class="ab-cluster" role="group" aria-label="A B">
           <button type="button" class="pad-face pad-b" id="pad-b" aria-label="B cancel">B</button>
@@ -147,8 +178,10 @@
   <script src="js/puzzles.js"></script>
   <script src="js/audio.js"></script>
   <script src="js/engine.js"></script>
+  <script src="js/hud.js"></script>
   <script src="js/pets.js"></script>
   <script src="js/map.js"></script>
+  <script src="js/worldmap.js"></script>
   <script src="js/duel.js"></script>
   <script src="js/game.js"></script>
 </body>

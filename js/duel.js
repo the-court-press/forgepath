@@ -1,6 +1,5 @@
-/* Forgepath — OPERATE!-style tile duel screen
-   Player (YOU) has HP + Focus; pets unlock/buff ops only.
-   Guardians apply cosmetic pressure; YOU take real damage on fail/timeout. */
+/* Forgepath — OPERATE!-style tile duel
+   Player HP + Focus (hearts / beads); pets unlock ops only. */
 (function (global) {
   'use strict';
 
@@ -24,6 +23,10 @@
       pressureMeter: document.getElementById('guardian-pressure-meter'),
       focusFill: document.getElementById('duel-focus-fill'),
       focusMeter: document.getElementById('duel-focus-meter'),
+      duelHearts: document.getElementById('duel-hearts'),
+      duelBeads: document.getElementById('duel-focus-beads'),
+      duelTray: document.getElementById('duel-pet-tray'),
+      stage: document.getElementById('duel-stage'),
       undo: document.getElementById('undo-btn'),
       reset: document.getElementById('reset-btn'),
       flee: document.getElementById('btn-flee'),
@@ -43,19 +46,27 @@
       els.toast.textContent = msg || '';
     }
 
+    function syncHud() {
+      if (global.ForgepathHud) {
+        ForgepathHud.renderHearts(els.duelHearts, playerHp);
+        ForgepathHud.renderFocusBeads(els.duelBeads, focus);
+        if (els.duelTray && opts.pets) ForgepathHud.renderPetTray(els.duelTray, opts.pets);
+      }
+      if (els.playerHp) els.playerHp.style.width = playerHp + '%';
+      if (els.playerHpMeter) els.playerHpMeter.setAttribute('aria-valuenow', Math.round(playerHp));
+      if (els.focusFill) els.focusFill.style.width = focus + '%';
+      if (els.focusMeter) els.focusMeter.setAttribute('aria-valuenow', Math.round(focus));
+    }
+
     function setFocus(v) {
       focus = Math.max(0, Math.min(100, v));
-      els.focusFill.style.width = focus + '%';
-      els.focusMeter.setAttribute('aria-valuenow', Math.round(focus));
+      syncHud();
       if (opts.onFocus) opts.onFocus(focus);
     }
 
     function setPlayerHp(v) {
       playerHp = Math.max(0, Math.min(100, v));
-      els.playerHp.style.width = playerHp + '%';
-      if (els.playerHpMeter) {
-        els.playerHpMeter.setAttribute('aria-valuenow', Math.round(playerHp));
-      }
+      syncHud();
       if (opts.onHp) opts.onHp(playerHp);
     }
 
@@ -102,7 +113,7 @@
     function renderOps(allowedOps) {
       els.opBar.innerHTML = '';
       const pets = opts.pets;
-      for (const pet of pets.list) {
+      for (const pet of pets.combatPets()) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'op-btn';
@@ -110,7 +121,7 @@
         btn.setAttribute('aria-label', pet.name + ' (support)');
         const unlocked = pets.isUnlocked(pet.id);
         btn.disabled = !unlocked;
-        btn.innerHTML = `<span>${pet.glyph}</span><span class="op-pet">${unlocked ? pet.name.slice(0, 3) : '·'}</span>`;
+        btn.innerHTML = '<span>' + pet.glyph + '</span><span class="op-pet">' + (unlocked ? pet.name.slice(0, 3) : '·') + '</span>';
         if (unlocked) {
           btn.addEventListener('click', () => {
             OperateAudio.unlock();
@@ -155,7 +166,6 @@
       if (!r.ok) {
         if (r.reason === 'div0' || r.reason === 'op-not-allowed') {
           OperateAudio.error();
-          // Fail / bad cast: YOU take the hit; guardian pressure ticks up
           damagePlayer(10, '…');
           setPressure(pressure + 12);
         }
@@ -166,7 +176,6 @@
         OperateAudio.merge();
         setFocus(focus + 4);
         lastMergeAt = performance.now();
-        // Cosmetic pressure on guardian (they get pushed back; YOU don't lose HP)
         setPressure(pressure + 10 + Math.floor(focus / 25));
         pulseGuardian();
       }
@@ -209,7 +218,6 @@
       active = false;
       OperateAudio.error();
       toast('Focus slips…');
-      // Soft fail: return to map after a beat (no grim death)
       setTimeout(() => {
         if (opts.onFlee) opts.onFlee(encounter);
       }, 700);
@@ -224,14 +232,13 @@
 
     function startPressureTimer() {
       clearPressureTimer();
-      // Soft timeout pressure: if idle too long, guardian chips YOUR HP
       pressureTimer = setInterval(() => {
         if (!active) return;
         const idle = (performance.now() - lastMergeAt) / 1000;
         if (idle >= 12) {
           setPressure(pressure + 8);
           damagePlayer(6, '');
-          lastMergeAt = performance.now(); // pace hits
+          lastMergeAt = performance.now();
         } else if (idle >= 6) {
           setPressure(pressure + 4);
           pulseGuardian();
@@ -245,7 +252,10 @@
       setPlayerHp(typeof opts.getHp === 'function' ? opts.getHp() : 100);
       setPressure(0);
       els.win.hidden = true;
-      els.guardianFace.textContent = enc.face || '🌿';
+      if (els.stage) {
+        els.stage.classList.toggle('is-boss', enc.kind === 'boss');
+      }
+      // CSS golem art stays; label updates
       els.guardianName.textContent = enc.label || 'Guardian';
       toast('');
 
@@ -255,6 +265,7 @@
       if (enc.kind === 'mid') band = 'seed';
 
       renderOps(allowed);
+      syncHud();
       const puzzle = pickPuzzle(band, allowed);
       if (!puzzle) {
         toast('No puzzle');
@@ -294,7 +305,6 @@
     });
 
     function pressA() {
-      // Confirm: return from win panel, else no-op (tiles use tap)
       if (!els.win.hidden) {
         els.ret.click();
         return true;
@@ -303,7 +313,6 @@
     }
 
     function pressB() {
-      // Cancel / undo; if win panel, treat as flee-ish return is A
       if (!els.win.hidden) return false;
       if (active) {
         els.undo.click();
@@ -322,6 +331,7 @@
       isActive: () => active,
       pressA,
       pressB,
+      syncHud,
     };
   }
 
