@@ -1,4 +1,4 @@
-/* Numera v0.1 — original CSS art, no franchise IP */
+/* Forgepath v0.1 — original CSS art, no franchise IP */
 :root {
   --soil: #1e3a2f;
   --moss: #2d5a45;
@@ -148,6 +148,27 @@ html, body {
 .pet-chip[data-op="/"] .pet-glyph { color: #d4a0e8; }
 .pet-glyph { font-weight: 800; font-size: 1.15rem; line-height: 1; }
 
+
+.you-mini {
+  display: flex; align-items: center; gap: 6px;
+}
+.you-mini-label {
+  font-size: .65rem; font-weight: 700; letter-spacing: .08em;
+  opacity: .75; color: var(--sun);
+}
+.hp-mini {
+  width: 64px; height: 10px;
+  background: var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent);
+}
+.hp-mini-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #a05050, var(--rose));
+  transition: width .25s;
+}
+
 .focus-mini {
   width: 80px; height: 10px;
   background: var(--ink);
@@ -204,9 +225,35 @@ html, body {
   cursor: pointer;
   border: 1px solid color-mix(in srgb, var(--leaf) 30%, transparent);
 }
+.player-block {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 100px;
+}
+.player-face {
+  font-size: 1.1rem;
+  color: var(--sun);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--sun) 50%, transparent));
+}
+.player-label {
+  font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+  color: var(--sun); opacity: .9;
+}
+.hp-track {
+  width: 100%; max-width: 140px; height: 10px;
+  background: var(--ink); border-radius: 999px; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent);
+}
+.hp-track.player-hp { border-color: color-mix(in srgb, var(--rose) 55%, transparent); }
+.hp-fill {
+  height: 100%; width: 100%;
+  background: linear-gradient(90deg, #a05050, var(--rose));
+  transition: width .35s ease;
+}
 .guardian-block {
   flex: 1;
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 90px;
 }
 .guardian-face {
   font-size: 1.8rem;
@@ -220,15 +267,15 @@ html, body {
   75% { transform: translateX(4px) rotate(4deg); }
 }
 .guardian-label { font-size: .7rem; opacity: .7; letter-spacing: .06em; }
-.hp-track {
-  width: 100%; max-width: 160px; height: 8px;
+.pressure-track {
+  width: 100%; max-width: 120px; height: 6px;
   background: var(--ink); border-radius: 999px; overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--rose) 40%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent);
 }
-.hp-fill {
-  height: 100%; width: 100%;
-  background: linear-gradient(90deg, #a05050, var(--rose));
-  transition: width .4s ease;
+.pressure-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, #6a8a50, var(--amber));
+  transition: width .35s ease;
 }
 .focus-block-duel { width: 90px; }
 .focus-label { font-size: .65rem; opacity: .6; display: block; margin-bottom: 2px; }
@@ -371,4 +418,192 @@ html, body {
   .tile { width: 60px; height: 60px; font-size: 1.35rem; }
   .op-btn { width: 48px; height: 48px; }
   .title-word { font-size: 2rem; }
+}
+
+/* —— Forgepath pad (classic handheld homage; original branding) —— */
+.game-pad {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  padding: 8px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.game-pad[hidden] { display: none !important; }
+.pad-shell {
+  pointer-events: auto;
+  width: min(420px, 100%);
+  background:
+    linear-gradient(180deg, #c8c8c8 0%, #9a9a9a 45%, #7a7a7a 100%);
+  border: 3px solid #4a4a4a;
+  border-radius: 18px 18px 28px 28px;
+  box-shadow:
+    inset 0 2px 0 #e8e8e8,
+    inset 0 -3px 0 #5a5a5a,
+    0 8px 24px rgba(0,0,0,.45);
+  padding: 8px 12px 12px;
+  image-rendering: pixelated;
+}
+.pad-brand {
+  font-family: ui-monospace, "Courier New", monospace;
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .28em;
+  text-align: center;
+  color: #3a3a3a;
+  margin-bottom: 6px;
+  text-shadow: 0 1px 0 #d0d0d0;
+}
+.pad-body {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+}
+.dpad {
+  width: 108px; height: 108px;
+  display: grid;
+  grid-template-columns: 34px 34px 34px;
+  grid-template-rows: 34px 34px 34px;
+  grid-template-areas:
+    ". up ."
+    "left center right"
+    ". down .";
+  justify-content: center;
+  align-content: center;
+  margin: 0 auto 0 0;
+}
+.dpad-btn {
+  background: #1a1a1a;
+  border: 2px solid #0a0a0a;
+  border-radius: 3px;
+  box-shadow:
+    inset 0 1px 0 #444,
+    0 2px 0 #000;
+  cursor: pointer;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  position: relative;
+  padding: 0;
+}
+.dpad-btn:active, .dpad-btn.is-down {
+  background: #0d0d0d;
+  box-shadow: inset 0 2px 4px #000;
+  transform: translateY(1px);
+}
+.dpad-up { grid-area: up; border-radius: 4px 4px 0 0; }
+.dpad-down { grid-area: down; border-radius: 0 0 4px 4px; }
+.dpad-left { grid-area: left; border-radius: 4px 0 0 4px; }
+.dpad-right { grid-area: right; border-radius: 0 4px 4px 0; }
+.dpad-center {
+  grid-area: center;
+  pointer-events: none;
+  background: #222;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 2px #111;
+}
+.dpad-up::after, .dpad-down::after, .dpad-left::after, .dpad-right::after {
+  content: "";
+  position: absolute; inset: 0;
+  margin: auto;
+  width: 0; height: 0;
+  border-style: solid;
+}
+.dpad-up::after {
+  border-width: 0 6px 8px 6px;
+  border-color: transparent transparent #666 transparent;
+}
+.dpad-down::after {
+  border-width: 8px 6px 0 6px;
+  border-color: #666 transparent transparent transparent;
+}
+.dpad-left::after {
+  border-width: 6px 8px 6px 0;
+  border-color: transparent #666 transparent transparent;
+}
+.dpad-right::after {
+  border-width: 6px 0 6px 8px;
+  border-color: transparent transparent transparent #666;
+}
+.mid-cluster {
+  display: flex; flex-direction: column; gap: 10px;
+  align-items: center;
+  padding-top: 8px;
+}
+.pad-pill {
+  width: 52px; height: 18px;
+  border-radius: 999px;
+  border: 2px solid #2a2a2a;
+  background: linear-gradient(180deg, #4a4a4a, #1e1e1e);
+  color: #c8c8c8;
+  font-family: ui-monospace, "Courier New", monospace;
+  font-size: .48rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 #666, 0 2px 0 #0a0a0a;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.pad-pill:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px #000;
+}
+.ab-cluster {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 14px;
+  padding: 4px 0 0;
+  transform: rotate(-12deg);
+}
+.pad-face {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  border: 3px solid #3a1018;
+  font-family: ui-monospace, "Courier New", monospace;
+  font-size: .95rem;
+  font-weight: 900;
+  color: #3a1018;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow:
+    inset 0 2px 0 rgba(255,255,255,.35),
+    0 3px 0 #2a0a10,
+    0 5px 10px rgba(0,0,0,.35);
+}
+.pad-a {
+  background: radial-gradient(circle at 35% 30%, #f07088, #c83048 60%, #8a1828);
+}
+.pad-b {
+  background: radial-gradient(circle at 35% 30%, #f07088, #c83048 60%, #8a1828);
+  margin-bottom: 18px;
+}
+.pad-face:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 6px rgba(0,0,0,.45), 0 1px 0 #2a0a10;
+}
+/* leave room so pad doesn't cover duel/map */
+#screen-map.active, #screen-duel.active {
+  padding-bottom: 150px;
+}
+@media (max-width: 480px) {
+  .pad-shell { border-radius: 14px 14px 22px 22px; }
+  .dpad { width: 96px; height: 96px; grid-template-columns: 30px 30px 30px; grid-template-rows: 30px 30px 30px; }
+  .pad-face { width: 44px; height: 44px; }
+  #screen-map.active, #screen-duel.active { padding-bottom: 140px; }
+}
+
+.pet-tray.pets-flash .pet-chip.unlocked {
+  animation: petPulse .45s ease 2;
+  border-color: var(--amber);
+}
+@keyframes petPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
 }

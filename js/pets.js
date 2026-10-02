@@ -1,4 +1,4 @@
-/* Numera — op-pets (Summo, Differentia, Producto, Quotia) */
+/* Forgepath — op-pets (Summo, Differentia, Producto, Quotia) */
 (function (global) {
   'use strict';
 
@@ -54,5 +54,5 @@
     }
   }
 
-  global.NumeraPets = { PETS, createPetState, renderPetTray };
+  global.ForgepathPets = { PETS, createPetState, renderPetTray };
 })(window);

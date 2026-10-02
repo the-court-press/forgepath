@@ -1,4 +1,6 @@
-/* Numera — OPERATE!-style tile duel screen */
+/* Forgepath — OPERATE!-style tile duel screen
+   Player (YOU) has HP + Focus; pets unlock/buff ops only.
+   Guardians apply cosmetic pressure; YOU take real damage on fail/timeout. */
 (function (global) {
   'use strict';
 
@@ -14,9 +16,12 @@
       win: document.getElementById('win-panel'),
       winMsg: document.getElementById('win-msg'),
       winUnlock: document.getElementById('win-unlock'),
-      guardianHp: document.getElementById('guardian-hp'),
+      playerHp: document.getElementById('player-hp'),
+      playerHpMeter: document.getElementById('player-hp-meter'),
       guardianFace: document.getElementById('guardian-face'),
       guardianName: document.getElementById('guardian-name'),
+      pressureFill: document.getElementById('guardian-pressure'),
+      pressureMeter: document.getElementById('guardian-pressure-meter'),
       focusFill: document.getElementById('duel-focus-fill'),
       focusMeter: document.getElementById('duel-focus-meter'),
       undo: document.getElementById('undo-btn'),
@@ -26,10 +31,13 @@
     };
 
     let encounter = null;
-    let hp = 100;
+    let playerHp = 100;
+    let pressure = 0;
     let focus = 0;
     let dealStarted = 0;
+    let lastMergeAt = 0;
     let active = false;
+    let pressureTimer = null;
 
     function toast(msg) {
       els.toast.textContent = msg || '';
@@ -42,22 +50,45 @@
       if (opts.onFocus) opts.onFocus(focus);
     }
 
-    function setHp(v) {
-      hp = Math.max(0, Math.min(100, v));
-      els.guardianHp.style.width = hp + '%';
+    function setPlayerHp(v) {
+      playerHp = Math.max(0, Math.min(100, v));
+      els.playerHp.style.width = playerHp + '%';
+      if (els.playerHpMeter) {
+        els.playerHpMeter.setAttribute('aria-valuenow', Math.round(playerHp));
+      }
+      if (opts.onHp) opts.onHp(playerHp);
+    }
+
+    function setPressure(v) {
+      pressure = Math.max(0, Math.min(100, v));
+      if (els.pressureFill) els.pressureFill.style.width = pressure + '%';
+      if (els.pressureMeter) {
+        els.pressureMeter.setAttribute('aria-valuenow', Math.round(pressure));
+      }
+    }
+
+    function pulseGuardian() {
+      els.guardianFace.classList.remove('hurt');
+      void els.guardianFace.offsetWidth;
+      els.guardianFace.classList.add('hurt');
+    }
+
+    function damagePlayer(amt, reason) {
+      if (!active || playerHp <= 0) return;
+      setPlayerHp(playerHp - amt);
+      pulseGuardian();
+      if (reason) toast(reason);
+      if (playerHp <= 0) onDefeat();
     }
 
     function pickPuzzle(band, allowedOps) {
       const all = (global.OPERATE_PUZZLES || []).filter((p) => {
         if (p.band !== band) return false;
-        // puzzle ops must be subset of allowed
         return (p.ops || []).every((op) => allowedOps.indexOf(op) >= 0);
       });
-      // prefer puzzles that use only allowed ops; if band seed with only +/- many exist
       let pool = all.filter((p) => !usedKeys.has(OperateEngine.puzzleKey(p)));
       if (!pool.length) pool = all;
       if (!pool.length) {
-        // fallback: any seed with ops ⊆ allowed
         const any = (global.OPERATE_PUZZLES || []).filter((p) =>
           (p.ops || []).every((op) => allowedOps.indexOf(op) >= 0)
         );
@@ -65,7 +96,6 @@
       }
       const p = pool[Math.floor(Math.random() * pool.length)];
       if (p) usedKeys.add(OperateEngine.puzzleKey(p));
-      // clamp puzzle ops to currently unlocked pets
       return Object.assign({}, p, { ops: allowedOps.slice() });
     }
 
@@ -77,7 +107,7 @@
         btn.type = 'button';
         btn.className = 'op-btn';
         btn.dataset.op = pet.op;
-        btn.setAttribute('aria-label', pet.name);
+        btn.setAttribute('aria-label', pet.name + ' (support)');
         const unlocked = pets.isUnlocked(pet.id);
         btn.disabled = !unlocked;
         btn.innerHTML = `<span>${pet.glyph}</span><span class="op-pet">${unlocked ? pet.name.slice(0, 3) : '·'}</span>`;
@@ -125,36 +155,32 @@
       if (!r.ok) {
         if (r.reason === 'div0' || r.reason === 'op-not-allowed') {
           OperateAudio.error();
-          toast(r.reason === 'div0' ? '…' : '');
+          // Fail / bad cast: YOU take the hit; guardian pressure ticks up
+          damagePlayer(10, '…');
+          setPressure(pressure + 12);
         }
         if (r.state) renderTiles(r.state);
         return;
       }
       if (r.action === 'merge') {
         OperateAudio.merge();
-        // small focus tick per merge
         setFocus(focus + 4);
-        // cosmetic chip
-        damageGuardian(8 + Math.floor(focus / 20));
+        lastMergeAt = performance.now();
+        // Cosmetic pressure on guardian (they get pushed back; YOU don't lose HP)
+        setPressure(pressure + 10 + Math.floor(focus / 25));
+        pulseGuardian();
       }
       if (r.state) renderTiles(r.state);
       if (r.win) onWin();
     }
 
-    function damageGuardian(amt) {
-      setHp(hp - amt);
-      els.guardianFace.classList.remove('hurt');
-      void els.guardianFace.offsetWidth;
-      els.guardianFace.classList.add('hurt');
-    }
-
     function onWin() {
+      clearPressureTimer();
       OperateAudio.win();
       const elapsed = (performance.now() - dealStarted) / 1000;
-      // Focus charge from speed
       const bonus = elapsed < 20 ? 25 : elapsed < 45 ? 15 : 8;
       setFocus(focus + bonus);
-      setHp(0);
+      setPressure(100);
 
       let unlockMsg = '';
       if (encounter && encounter.unlock === 'producto') {
@@ -178,18 +204,52 @@
       if (opts.onWin) opts.onWin(encounter);
     }
 
+    function onDefeat() {
+      clearPressureTimer();
+      active = false;
+      OperateAudio.error();
+      toast('Focus slips…');
+      // Soft fail: return to map after a beat (no grim death)
+      setTimeout(() => {
+        if (opts.onFlee) opts.onFlee(encounter);
+      }, 700);
+    }
+
+    function clearPressureTimer() {
+      if (pressureTimer) {
+        clearInterval(pressureTimer);
+        pressureTimer = null;
+      }
+    }
+
+    function startPressureTimer() {
+      clearPressureTimer();
+      // Soft timeout pressure: if idle too long, guardian chips YOUR HP
+      pressureTimer = setInterval(() => {
+        if (!active) return;
+        const idle = (performance.now() - lastMergeAt) / 1000;
+        if (idle >= 12) {
+          setPressure(pressure + 8);
+          damagePlayer(6, '');
+          lastMergeAt = performance.now(); // pace hits
+        } else if (idle >= 6) {
+          setPressure(pressure + 4);
+          pulseGuardian();
+        }
+      }, 2000);
+    }
+
     function begin(enc) {
       encounter = enc;
       active = true;
-      hp = 100;
-      setHp(100);
+      setPlayerHp(typeof opts.getHp === 'function' ? opts.getHp() : 100);
+      setPressure(0);
       els.win.hidden = true;
       els.guardianFace.textContent = enc.face || '🌿';
       els.guardianName.textContent = enc.label || 'Guardian';
       toast('');
 
       const allowed = opts.pets.allowedOps();
-      // Boss uses sprout band if × unlocked, else seed
       let band = enc.band || 'seed';
       if (enc.kind === 'boss' && allowed.indexOf('*') >= 0) band = 'sprout';
       if (enc.kind === 'mid') band = 'seed';
@@ -200,16 +260,17 @@
         toast('No puzzle');
         return;
       }
-      // For early seed with only +−, ensure we use seed puzzles
       const state = game.deal(puzzle);
-      // Override ops on the live puzzle to allowed
       renderTiles(state);
       dealStarted = performance.now();
+      lastMergeAt = dealStarted;
       OperateAudio.deal();
+      startPressureTimer();
     }
 
     function end() {
       active = false;
+      clearPressureTimer();
       els.win.hidden = true;
     }
 
@@ -224,20 +285,45 @@
       OperateAudio.deal();
     });
     els.flee.addEventListener('click', () => {
+      clearPressureTimer();
       if (opts.onFlee) opts.onFlee(encounter);
     });
     els.ret.addEventListener('click', () => {
+      clearPressureTimer();
       if (opts.onReturn) opts.onReturn(encounter);
     });
+
+    function pressA() {
+      // Confirm: return from win panel, else no-op (tiles use tap)
+      if (!els.win.hidden) {
+        els.ret.click();
+        return true;
+      }
+      return false;
+    }
+
+    function pressB() {
+      // Cancel / undo; if win panel, treat as flee-ish return is A
+      if (!els.win.hidden) return false;
+      if (active) {
+        els.undo.click();
+        return true;
+      }
+      return false;
+    }
 
     return {
       begin,
       end,
       setFocus,
       getFocus: () => focus,
+      setPlayerHp,
+      getPlayerHp: () => playerHp,
       isActive: () => active,
+      pressA,
+      pressB,
     };
   }
 
-  global.NumeraDuel = { createDuel };
+  global.ForgepathDuel = { createDuel };
 })(window);

@@ -1,4 +1,4 @@
-/* Numera — merge engine (adapted from operate) */
+/* Forgepath — merge engine (adapted from operate) */
 (function (global) {
   'use strict';
 

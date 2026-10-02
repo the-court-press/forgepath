@@ -1,4 +1,4 @@
-/* Numera — Seed Grove overworld (canvas) */
+/* Forgepath — Seed Grove overworld (canvas) */
 (function (global) {
   'use strict';
 
@@ -223,10 +223,10 @@
 
       let dx = 0, dy = 0;
       const speed = 3.2 * dt;
-      if (keys.ArrowLeft || keys.a || keys.A) dx -= 1;
-      if (keys.ArrowRight || keys.d || keys.D) dx += 1;
-      if (keys.ArrowUp || keys.w || keys.W) dy -= 1;
-      if (keys.ArrowDown || keys.s || keys.S) dy += 1;
+      if (keys.ArrowLeft || keys.a || keys.A || keys.PadLeft) dx -= 1;
+      if (keys.ArrowRight || keys.d || keys.D || keys.PadRight) dx += 1;
+      if (keys.ArrowUp || keys.w || keys.W || keys.PadUp) dy -= 1;
+      if (keys.ArrowDown || keys.s || keys.S || keys.PadDown) dy += 1;
 
       if (dx || dy) {
         state.target = null;
@@ -318,11 +318,43 @@
       return NODES.filter((n) => n.kind !== 'boss' && state.cleared.has(n.id)).length;
     }
 
+    function setPad(dir, down) {
+      const map = { up: 'PadUp', down: 'PadDown', left: 'PadLeft', right: 'PadRight' };
+      const k = map[dir];
+      if (!k) return;
+      if (down) keys[k] = true;
+      else delete keys[k];
+    }
+
+    function interactNearest() {
+      // A: walk toward nearest uncleared node (or current click-target style)
+      let best = null;
+      let bestD = Infinity;
+      for (const n of NODES) {
+        if (state.cleared.has(n.id)) continue;
+        const dx = state.px - (n.x + 0.5);
+        const dy = state.py - (n.y + 0.5);
+        const d = dx * dx + dy * dy;
+        if (d < bestD) { bestD = d; best = n; }
+      }
+      if (best) {
+        state.target = { x: best.x + 0.5, y: best.y + 0.5 };
+        return true;
+      }
+      return false;
+    }
+
+    function cancelMove() {
+      state.target = null;
+      keys = Object.create(null);
+    }
+
     return {
       start, stop, markCleared, isCleared, allCleared, seedClearedCount,
+      setPad, interactNearest, cancelMove,
       NODES, state,
     };
   }
 
-  global.NumeraMap = { createMap, NODES, COLS, ROWS };
+  global.ForgepathMap = { createMap, NODES, COLS, ROWS };
 })(window);
