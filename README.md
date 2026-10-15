@@ -5,7 +5,7 @@ A wordless, map-first **math RPG**: walk a tiny overworld, touch an encounter no
 **You** are the fighter (hearts + Focus beads). Pets only unlock & empower ops — they don’t take the hits. Guardians apply cosmetic pressure.
 
 Playable demo (GitHub Pages):  
-**https://julianlee314-hue.github.io/forgepath/**
+**https://the-court-press.github.io/forgepath/**
 
 ## ForgePath Prequel vs `operate`
 
@@ -14,7 +14,7 @@ Playable demo (GitHub Pages):
 | Role | Arithmetic tile **lab / research box** | Ambitious **math RPG** product |
 | Loop | Deal → solve → next puzzle | Overworld → encounter → duel → map |
 | Framing | Solo practice table | Seed Grove / Workshop Isles, pets, boss |
-| Repo | [`operate`](https://github.com/julianlee314-hue/operate) | [`forgepath`](https://github.com/julianlee314-hue/forgepath) |
+| Repo | [`operate`](https://github.com/the-court-press/operate) | [`forgepath`](https://github.com/the-court-press/forgepath) |
 
 Puzzle **bank + merge engine** ideas are reused from `operate` (copied, not linked). Changing ForgePath Prequel will not break the operate repo.
 
