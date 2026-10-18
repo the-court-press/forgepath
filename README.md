@@ -93,4 +93,4 @@ Concept PNGs in `art/reference/` are **visual targets** (concept / AI-assisted),
 
 ## License
 
-Prototype for personal / educational use. © Julius (julianlee314-hue).
+Prototype for personal / educational use. © Julius (the-court-press).
